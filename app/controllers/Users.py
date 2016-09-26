@@ -1,4 +1,6 @@
 from system.core.controller import *
+
+
 class Users(Controller):
 	def __init__(self, action):
 		super(Users, self).__init__(action)
@@ -20,17 +22,19 @@ class Users(Controller):
 			return redirect('/')
 		else:
 			session['email'] = email
+			session['id'] = user['id']
 			session['success'] = 'logged in'
-			return redirect('/success')
+			return redirect('/friends')
 
 
 	def register(self):
 		user_info = {
-			"first_name" : request.form['first_name'],
-			"last_name" : request.form['last_name'],
+			"name" : request.form['name'],
+			"alias" : request.form['alias'],
 			"email" : request.form['email'],
 			"password" : request.form['password'],
-			"c_password" : request.form['c_password']
+			"c_password" : request.form['c_password'],
+			"birthday" : request.form['birthday']
 		}
 		validations = self.models['User'].add_user(user_info)
 		if validations['status'] == False:
@@ -39,49 +43,38 @@ class Users(Controller):
 				return redirect('/')
 		else:
 			session["email"] = request.form['email']
+			user = self.models['User'].get_user_by_email(session['email'])
+			session['id'] = user['id']
 			session['success'] = 'registered'   
-			return redirect('/success')
+			return redirect('/friends')
 
 
-	def success(self):
+	def friends(self):
 		user = self.models['User'].get_user_by_email(session["email"])
-		session['name'] = user['first_name']
-		return self.load_view('success.html', name=session['name'], success_message = session['success'])
-
-
-	def displayUpdate(self):
-		user = self.models['User'].get_user_by_email(session['email'])
-		return self.load_view('update.html', user=user)
-
-
-	def update(self):
-		user_info = {
-			"first_name" : request.form['first_name'],
-			"last_name" : request.form['last_name'],
-			"email" : request.form['email'],
-			"password" : request.form['password'],
-			"c_password" : request.form['c_password']
-		}
-		validations = self.models['User'].update_user(user_info)
-		if validations['status'] == False:
-			for message in validations['errors']:
-				flash(message, 'error')
-				return redirect('/update')
+		session['alias'] = user['alias']
+		friends = self.models['User'].get_friends(user['id'])
+		if not friends:
+			flash("You don't have any friends yet!")
 		else:
-			session['success'] = 'updated account'
-			return redirect('/success')
+			flash("Here is the list of your friends:")
+		nonfriends = self.models['User'].get_nonfriends(user['id'])
+		return self.load_view('friends.html', nonfriends=nonfriends, name=session['alias'], friends=friends)
 
 
-	def delete(self):
-		user = self.models['User'].get_user_by_email(session['email'])
-		return self.load_view('delete.html', user=user)
+	def add_friend(self, friend_id):
+		self.models['User'].add_friend(session['id'], friend_id)
+		return redirect('/friends')
 
 
-	def destroy(self):
-		self.models['User'].delete_user(session['email'])
-		session.clear()
-		flash('Account successfully deleted')
-		return redirect('/')
+	def view_user(self, user_id):
+		user = self.models['User'].get_user_by_id(user_id)
+		return self.load_view('viewfriend.html', user=user)
+
+
+	def delete(self, friend_id):
+		self.models['User'].remove_friend(session['id'], friend_id)
+		flash('Successfully unfriended')
+		return redirect('/friends')
 
 
 	def logout(self):
