@@ -20,13 +20,13 @@ routes['default_controller'] = 'Users'
 
 routes['POST']['/login'] = 'Users#login'
 routes['POST']['/register'] = 'Users#register'
-routes['GET']['/success'] = 'Users#success'
+routes['GET']['/friends'] = 'Users#friends'
 
-routes['GET']['/update'] = 'Users#displayUpdate'
-routes['POST']['/update/update_user'] = 'Users#update'
+routes['POST']['/addfriend/<friend_id>'] = 'Users#add_friend'
 
-routes['GET']['/delete'] = 'Users#delete'
-routes['POST']['/delete/destroy'] = 'Users#destroy'
+routes['POST']['/remove/<friend_id>'] = 'Users#delete'
+
+routes['GET']['/user/<user_id>'] = 'Users#view_user'
 
 routes['POST']['/logout'] = 'Users#logout'
 

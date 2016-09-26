@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="/static/css/styles.css" type="text/css">
+		<title>Friends</title>
+		<link rel="stylesheet" href="/static/css/styles.css" type="text/css">
+	</head>
+	<body>
+		<h1>Hello {{ name }}!</h1>
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				{% for message in messages %}
+					<p>{{ message }}</p>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+		<br><br>
+		<table>
+			<tr>
+				<th>Alias</th>
+				<th>Action</th>
+			</tr>
+			{% for friend in friends: %}
+				<tr>
+					<td>{{ friend['alias'] }}</td>
+					<td><form class="friend" action='/user/{{friend["id"]}}' method='get'><button>View Profile</button></form><form class="friend" action='/remove/{{friend["id"]}}' method='post'><button>Remove as friend</button></form></td>
+				</tr>
+			{% endfor %}
+		</table>
+		<br><hr><br>
+		<table>
+			<tr>
+				<th>Alias</th>
+				<th>Action</th>
+			</tr>
+			{% for nonfriend in nonfriends: %}
+				<tr>
+					<td><a href="/user/{{nonfriend['id']}}"> {{ nonfriend['alias'] }}</a></td>
+					<td><form class="friend" action='/addfriend/{{ nonfriend["id"] }}' method="post"><button>Add as Friend</button></form></td>
+				</tr>
+			{% endfor %}
+		</table>
+		<br><br>
+		<form action='/logout' method='post'>
+			<input class='button' type="submit" value="Logout">
+		</form>
+	</body>
+</html>

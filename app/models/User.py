@@ -5,9 +5,20 @@ class User(Model):
 		super(User, self).__init__()
 
 	def get_user_by_email(self, email):
-		query = "SELECT name, alias, email, password FROM users WHERE email = :email"
+		query = "SELECT id, name, alias, email, password FROM users WHERE email = :email"
 		data = { 
 			'email': email
+		}
+		user = self.db.query_db(query, data)
+		if user:
+			return user[0]
+		else:
+			return None
+
+	def get_user_by_id(self, user_id):
+		query = "SELECT name, alias, email, password FROM users WHERE id = :id"
+		data = { 
+			'id': user_id
 		}
 		user = self.db.query_db(query, data)
 		if user:
@@ -46,31 +57,77 @@ class User(Model):
 			return {"status": False, "errors": errors}
 		else:
 			password_hash = self.bcrypt.generate_password_hash(user['password'])
-			query = "INSERT INTO users (name, alias, email, password, created_at) VALUES (:name, :alias, :email, :password, NOW())"
+			query = "INSERT INTO users (name, alias, email, password, birthday, created_at) VALUES (:name, :alias, :email, :password, :birthday, NOW())"
 			data = { 
 				'name': user['name'],
 				'alias': user['alias'], 
 				'email': user['email'],
-				'password': password_hash 
+				'password': password_hash,
+				'birthday': user['birthday']
 			}
 			self.db.query_db(query, data)
 			return { "status": True }
 
-	def update_user(self, user):
-		errors = self.validate(user)
-		if errors:
-			return {"status": False, "errors": errors}
-		else:
-			password_hash = self.bcrypt.generate_password_hash(user['password'])
-			query = "UPDATE users SET name=:name, alias=:alias, email=:email, password=:password WHERE email = :email"
-			data = { 
-				'name': user['name'], 
-				'alias': user['alias'], 
-				'email': user['email'],
-				'password': password_hash
-			}
-			self.db.query_db(query, data)
-			return { "status": True }
+	# def update_user(self, user):
+	# 	errors = self.validate(user)
+	# 	if errors:
+	# 		return {"status": False, "errors": errors}
+	# 	else:
+	# 		password_hash = self.bcrypt.generate_password_hash(user['password'])
+	# 		query = "UPDATE users SET name=:name, alias=:alias, email=:email, password=:password WHERE email = :email"
+	# 		data = { 
+	# 			'name': user['name'], 
+	# 			'alias': user['alias'], 
+	# 			'email': user['email'],
+	# 			'password': password_hash
+	# 		}
+	# 		self.db.query_db(query, data)
+	# 		return { "status": True }
+
+	def add_friend(self, user_id, friend_id):
+		query = """INSERT into friends (user_id, friend_id) values (:user_id, :friend_id);
+		INSERT into friends (user_id, friend_id) values (:friend_id, :user_id);"""
+		data = { 
+			'user_id' : user_id,
+			'friend_id' : friend_id
+		}
+		self.db.query_db(query, data)
+
+	def remove_friend(self, user_id, friend_id):
+		query = """DELETE from friends where friend_id = :friend_id;
+		DELETE from friends where friend_id = :user_id"""
+		data = { 
+			'user_id' : user_id,
+			'friend_id' : friend_id
+		}
+		self.db.query_db(query, data)
+
+
+	def get_nonfriends(self, user_id):
+		query = """SELECT * from users 
+				where id not in 
+				(SELECT friends.friend_id from friends 
+				where friends.user_id = :user_id) 
+				and users.id != :user_id"""
+		data = { 
+			'user_id': user_id
+		}
+		nonfriends = self.db.query_db(query, data)
+		print nonfriends
+		return nonfriends
+
+
+	def get_friends(self, user_id):
+		query = """SELECT users.alias, users.id from friends
+				left join users
+				on friends.friend_id = users.id
+				where friends.user_id = :user_id"""
+		data = { 
+			'user_id': user_id
+		}
+		friends = self.db.query_db(query, data)
+		return friends
+
 
 	def delete_user(self, email):
 		query = "DELETE FROM users WHERE email = :email"
