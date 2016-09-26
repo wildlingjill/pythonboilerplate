@@ -1,0 +1,5 @@
+GitHub repo: https://github.com/wildlingjill/pythonboilerplate, in the BeltProject1 branch.
+
+Deployment web address: wildlingjill.com
+
+Video of functionality to be emailed to bstanton@codingdojo.com and tateam@village88.com.
