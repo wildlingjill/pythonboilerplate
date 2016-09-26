@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="/static/css/styles.css" type="text/css">
+		<title>Friends</title>
+		<link rel="stylesheet" href="/static/css/styles.css" type="text/css">
+	</head>
+	<body>
+		<h1>Welcome, {{ name }}!</h1>
+		<form action='/logout' method='post'>
+			<input class='button' type="submit" value="Logout">
+		</form>
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				{% for message in messages %}
+					<p>{{ message }}</p>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+		<br><br>
+		<h3>Your Favourites</h3>
+		<div class="scroll">
+			{% for favourite in favourites: %}
+				<div class="quote">
+					<p>{{ favourite['content'] }}</p>
+					<p>Posted by <a class="user" href='/user/{{favourite["user_id"]}}'>{{ favourite['alias'] }}</a></p>
+					<form class="quote" action='/remove/{{ favourite["id"] }}' method='post'><button>Remove From My List</button></form>
+				</div>
+			{% endfor %}
+		</div>
+		<br><hr><br>
+		<h3>Quotable Quotes</h3>
+		<div class="scroll">
+			{% for quote in quotes: %}
+				<div class="quote">
+					<p>{{ quote['content'] }}</p>
+					<p>Posted by <a class="user" href="/user/{{user['id']}}"> {{ user['alias'] }}</a></p>
+					<form class="quote" action='/addquote/{{ quote["id"] }}' method="post"><button>Add to my List</button></form>
+				</div>
+			{% endfor %}
+		</div>
+		<br><br>
+		<form class="scroll" action='/submitquote' method='post'>
+			<input type="text" name="content">
+			<button>Submit</button>
+		</form>
+	</body>
+</html>

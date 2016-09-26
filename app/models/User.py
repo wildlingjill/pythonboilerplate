@@ -120,16 +120,18 @@ class User(Model):
 		return nonfriends
 
 
-	def get_friends(self, user_id):
-		query = """SELECT users.alias, users.id from friends
-				left join users
-				on friends.friend_id = users.id
-				where friends.user_id = :user_id"""
+	def get_favourites(self, user_id):
+		query = """SELECT users.alias, users.id, quotes.content, quotes.user_id as user_id from users
+				left join favourites
+				on users.id = favourites.user_id
+				left join quotes
+				on favourites.quote_id = quotes.id
+				where favourites.user_id = :user_id"""
 		data = { 
 			'user_id': user_id
 		}
-		friends = self.db.query_db(query, data)
-		return friends
+		favourites = self.db.query_db(query, data)
+		return favourites
 
 
 	def delete_user(self, email):

@@ -24,7 +24,7 @@ class Users(Controller):
 			session['email'] = email
 			session['id'] = user['id']
 			session['success'] = 'logged in'
-			return redirect('/friends')
+			return redirect('/quotes')
 
 
 	def register(self):
@@ -46,19 +46,20 @@ class Users(Controller):
 			user = self.models['User'].get_user_by_email(session['email'])
 			session['id'] = user['id']
 			session['success'] = 'registered'   
-			return redirect('/friends')
+			return redirect('/quotes')
 
 
-	def friends(self):
+	def quotes(self):
 		user = self.models['User'].get_user_by_email(session["email"])
 		session['alias'] = user['alias']
-		friends = self.models['User'].get_friends(user['id'])
-		if not friends:
-			flash("You don't have any friends yet!")
-		else:
-			flash("Here is the list of your friends:")
-		nonfriends = self.models['User'].get_nonfriends(user['id'])
-		return self.load_view('friends.html', nonfriends=nonfriends, name=session['alias'], friends=friends)
+		favourites = self.models['User'].get_favourites(user['id'])
+		# if not friends:
+		# 	flash("You don't have any friends yet!")
+		# else:
+		# 	flash("Here is the list of your friends:")
+		# nonfriends = self.models['User'].get_nonfriends(user['id'])
+		return self.load_view('quotes.html', name=session['alias'], favourites=favourites)
+			# , nonfriends=nonfriends, name=session['alias'], friends=friends)
 
 
 	def add_friend(self, friend_id):
