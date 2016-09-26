@@ -17,15 +17,13 @@ class User(Model):
 			return None
 
 	def get_user_by_id(self, user_id):
-		query = "SELECT name, alias, email, password FROM users WHERE id = :id"
+		query = "SELECT alias FROM users WHERE id = :id"
 		data = { 
 			'id': user_id
 		}
 		user = self.db.query_db(query, data)
-		if user:
-			return user[0]
-		else:
-			return None
+		return user
+		
 
 	def validate(self, user):
 		email_regex = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
@@ -87,41 +85,47 @@ class User(Model):
 	# 		self.db.query_db(query, data)
 	# 		return { "status": True }
 
-	def add_friend(self, user_id, friend_id):
-		query = """INSERT into friends (user_id, friend_id) values (:user_id, :friend_id);
-		INSERT into friends (user_id, friend_id) values (:friend_id, :user_id);"""
+	def add_quote(self, user_id, quote_id):
+		query = "INSERT into favourites (user_id, quote_id) values (:user_id, :quote_id)"
 		data = { 
 			'user_id' : user_id,
-			'friend_id' : friend_id
-		}
-		self.db.query_db(query, data)
-
-	def remove_friend(self, user_id, friend_id):
-		query = """DELETE from friends where friend_id = :friend_id;
-		DELETE from friends where friend_id = :user_id"""
-		data = { 
-			'user_id' : user_id,
-			'friend_id' : friend_id
+			'quote_id' : quote_id
 		}
 		self.db.query_db(query, data)
 
 
-	def get_nonfriends(self, user_id):
-		query = """SELECT * from users 
-				where id not in 
-				(SELECT friends.friend_id from friends 
-				where friends.user_id = :user_id) 
-				and users.id != :user_id"""
+	def submit_quote(self, user_id, content, quoted):
+		quote = quoted + ': ' + content
+		query= "INSERT into quotes (author_id, content) values (:author_id, :quote)"
+		data = {
+			'author_id': user_id,
+			'quote': quote
+		}
+		self.db.query_db(query, data)
+
+	def remove_quote(self, favourite_id):
+		query = "DELETE from favourites where favourites.id = :favourite_id"
+		data = { 
+			'favourite_id' : favourite_id
+		}
+		self.db.query_db(query, data)
+
+
+	def get_quotes(self, user_id):
+		query = """SELECT * from quotes where id not in 
+				(select favourites.quote_id from favourites where favourites.user_id = :user_id)"""
 		data = { 
 			'user_id': user_id
 		}
-		nonfriends = self.db.query_db(query, data)
-		print nonfriends
-		return nonfriends
+		quotes = self.db.query_db(query, data)
+		for quote in quotes:
+			author = self.get_user_by_id(quote['author_id'])
+		print quotes
+		return quotes
 
 
 	def get_favourites(self, user_id):
-		query = """SELECT users.alias, users.id, quotes.content, quotes.user_id as user_id from users
+		query = """SELECT users.alias, users.id, favourites.id, quotes.content, quotes.author_id from users
 				left join favourites
 				on users.id = favourites.user_id
 				left join quotes
@@ -133,11 +137,6 @@ class User(Model):
 		favourites = self.db.query_db(query, data)
 		return favourites
 
-
-	def delete_user(self, email):
-		query = "DELETE FROM users WHERE email = :email"
-		data = { "email": email }
-		return self.db.query_db(query, data)
 
 
 

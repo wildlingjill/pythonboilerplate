@@ -24,7 +24,7 @@
 				<div class="quote">
 					<p>{{ favourite['content'] }}</p>
 					<p>Posted by <a class="user" href='/user/{{favourite["user_id"]}}'>{{ favourite['alias'] }}</a></p>
-					<form class="quote" action='/remove/{{ favourite["id"] }}' method='post'><button>Remove From My List</button></form>
+					<form action='/remove/{{ favourite["id"] }}' method='post'><button>Remove from My List</button></form>
 				</div>
 			{% endfor %}
 		</div>
@@ -34,15 +34,16 @@
 			{% for quote in quotes: %}
 				<div class="quote">
 					<p>{{ quote['content'] }}</p>
-					<p>Posted by <a class="user" href="/user/{{user['id']}}"> {{ user['alias'] }}</a></p>
-					<form class="quote" action='/addquote/{{ quote["id"] }}' method="post"><button>Add to my List</button></form>
+					<p>Posted by <a class="user" href='/user/{{quote["author_id"]}}'>{{ alias }}</a></p>
+					<form class="quote" action='/addquote/{{ quote["id"] }}' method='post'><button>Add to My List</button></form>
 				</div>
 			{% endfor %}
 		</div>
 		<br><br>
 		<form class="scroll" action='/submitquote' method='post'>
-			<input type="text" name="content">
-			<button>Submit</button>
+			Quoted by: <input type='text' name='quoted'><br><br>
+			Message: <input id="submit" type="text" name="content">
+			<br><button>Submit quote</button><br>
 		</form>
 	</body>
 </html>

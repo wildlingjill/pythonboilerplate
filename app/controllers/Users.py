@@ -52,30 +52,39 @@ class Users(Controller):
 	def quotes(self):
 		user = self.models['User'].get_user_by_email(session["email"])
 		session['alias'] = user['alias']
-		favourites = self.models['User'].get_favourites(user['id'])
+		session['id'] = user['id']
+		favourites = self.models['User'].get_favourites(session['id'])
 		# if not friends:
 		# 	flash("You don't have any friends yet!")
 		# else:
 		# 	flash("Here is the list of your friends:")
-		# nonfriends = self.models['User'].get_nonfriends(user['id'])
-		return self.load_view('quotes.html', name=session['alias'], favourites=favourites)
-			# , nonfriends=nonfriends, name=session['alias'], friends=friends)
+		quotes = self.models['User'].get_quotes(session['id'])
+		print session['id']
+		return self.load_view('quotes.html', name=session['alias'], favourites=favourites, quotes=quotes)
 
 
-	def add_friend(self, friend_id):
-		self.models['User'].add_friend(session['id'], friend_id)
-		return redirect('/friends')
+	def add_quote(self, quote_id):
+		self.models['User'].add_quote(session['id'], quote_id)
+		return redirect('/quotes')
+
+
+	def submit_quote(self):
+		quoted = request.form['quoted']
+		content = request.form['content']
+		user_id = session['id']
+		self.models['User'].submit_quote(user_id, content, quoted)
+		return redirect('/quotes')
 
 
 	def view_user(self, user_id):
 		user = self.models['User'].get_user_by_id(user_id)
-		return self.load_view('viewfriend.html', user=user)
+		return self.load_view('viewuser.html', user=user)
 
 
-	def delete(self, friend_id):
-		self.models['User'].remove_friend(session['id'], friend_id)
-		flash('Successfully unfriended')
-		return redirect('/friends')
+	def remove_quote(self, favourite_id):
+		self.models['User'].remove_quote(favourite_id)
+		print favourite_id
+		return redirect('/quotes')
 
 
 	def logout(self):

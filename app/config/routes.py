@@ -22,11 +22,9 @@ routes['POST']['/login'] = 'Users#login'
 routes['POST']['/register'] = 'Users#register'
 routes['GET']['/quotes'] = 'Users#quotes'
 
-routes['GET']['/update'] = 'Users#displayUpdate'
-routes['POST']['/update/update_user'] = 'Users#update'
-
-routes['GET']['/delete'] = 'Users#delete'
-routes['POST']['/delete/destroy'] = 'Users#destroy'
+routes['POST']['/addquote/<quote_id>'] = 'Users#add_quote'
+routes['POST']['/remove/<favourite_id>'] = 'Users#remove_quote'
+routes['POST']['/submitquote'] = 'Users#submit_quote'
 
 routes['POST']['/logout'] = 'Users#logout'
 
