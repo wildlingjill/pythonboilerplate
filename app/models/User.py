@@ -1,5 +1,6 @@
 from system.core.model import Model
 import re
+from datetime import datetime
 class User(Model):
 	def __init__(self):
 		super(User, self).__init__()
@@ -44,7 +45,9 @@ class User(Model):
 		elif len(user['password']) < 8:
 			errors.append('Password must be at least 8 characters long')
 		elif user['password'] != user['c_password']:
-			errors.append('Password and confirmation do not match')		
+			errors.append('Password and confirmation do not match')
+		if not user['birthday']	:
+			errors.append('Please select your birthday')	
 		return errors
 		
 
@@ -63,7 +66,7 @@ class User(Model):
 				'alias': user['alias'], 
 				'email': user['email'],
 				'password': password_hash,
-				'birthday': user['birthday']
+				'birthday': datetime.strptime(user['birthday'], "%Y-%m-%d")
 			}
 			self.db.query_db(query, data)
 			return { "status": True }

@@ -1,5 +1,5 @@
 from system.core.controller import *
-from datetime import datetime
+
 
 class Users(Controller):
 	def __init__(self, action):
@@ -28,14 +28,13 @@ class Users(Controller):
 
 
 	def register(self):
-		birthday = datetime.strptime(request.form['birthday'], "%Y-%m-%d")
 		user_info = {
 			"name" : request.form['name'],
 			"alias" : request.form['alias'],
 			"email" : request.form['email'],
 			"password" : request.form['password'],
 			"c_password" : request.form['c_password'],
-			"birthday" : birthday
+			"birthday" : request.form['birthday']
 		}
 		validations = self.models['User'].add_user(user_info)
 		if validations['status'] == False:
